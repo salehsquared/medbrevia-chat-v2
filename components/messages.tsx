@@ -1,5 +1,5 @@
 import { PreviewMessage, ThinkingMessage } from './message';
-import { Greeting } from './greeting';
+import { Greeting } from './common/greeting';
 import { memo } from 'react';
 import type { Vote } from '@/lib/db/schema';
 import equal from 'fast-deep-equal';

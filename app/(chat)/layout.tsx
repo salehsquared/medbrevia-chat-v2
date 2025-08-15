@@ -1,7 +1,7 @@
 // app/(chat)/layout.tsx
 import {cookies} from 'next/headers';
 
-import {AppSidebar} from '@/components/app-sidebar';
+import {AppSidebar} from '@/components/sidebar/app-sidebar';
 import {SidebarInset, SidebarProvider} from '@/components/ui/sidebar';
 import {authOrDev} from '@/lib/auth/auth';
 import Script from 'next/script';

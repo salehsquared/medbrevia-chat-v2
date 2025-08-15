@@ -11,3 +11,7 @@ export const isTestEnvironment = Boolean(
 export const guestRegex = /^guest-\d+$/;
 
 export const DUMMY_PASSWORD = generateDummyPassword();
+
+export const MAX_MESSAGE_CHARS = Number(
+    process.env.NEXT_PUBLIC_MAX_MESSAGE_CHARS ?? '2000',
+);

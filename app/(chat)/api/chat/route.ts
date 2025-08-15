@@ -35,6 +35,7 @@ import {ChatSDKError} from '@/lib/errors';
 import type {ChatMessage} from '@/lib/types';
 import type {ChatModel} from '@/lib/ai/models';
 import type {VisibilityType} from '@/components/visibility-selector';
+import {ZodError} from 'zod';
 
 export const maxDuration = 60;
 
@@ -67,7 +68,15 @@ export async function POST(request: Request) {
         const json = await request.json();
         requestBody = postRequestBodySchema.parse(json);
     } catch (err) {
-        console.log(err)
+        // Return a precise, user-friendly error for validation problems.
+        if (err instanceof ZodError) {
+            const first = err.issues?.[0];
+            const cause =
+                first?.message ||
+                'Your message is invalid. Please review and try again.';
+            return new ChatSDKError('bad_request:chat', cause).toResponse();
+        }
+        // Fallback: generic API bad request
         return new ChatSDKError('bad_request:api').toResponse();
     }
 
@@ -200,13 +209,17 @@ export async function POST(request: Request) {
                 ),
             );
         } else {
-            return new Response(stream.pipeThrough(new JsonToSseTransformStream()));
+            return new Response(
+                stream.pipeThrough(new JsonToSseTransformStream()),
+            );
         }
     } catch (error) {
         if (error instanceof ChatSDKError) {
-            console.log(error)
+            console.log(error);
             return error.toResponse();
         }
+        // Non-ChatSDKError fallback
+        return new ChatSDKError('bad_request:api').toResponse();
     }
 }
 

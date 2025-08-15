@@ -4,7 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { memo, useState } from 'react';
 import type { Vote } from '@/lib/db/schema';
 import { DocumentToolCall, DocumentToolResult } from './document';
-import { PencilEditIcon, SparklesIcon } from './icons';
+import { PencilEditIcon, SparklesIcon } from './common/icons';
 import { Markdown } from './markdown/markdown';
 import { MessageActions } from './message-actions';
 import { PreviewAttachment } from './preview-attachment';

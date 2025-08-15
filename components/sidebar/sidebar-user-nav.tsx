@@ -18,8 +18,8 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
-import {LoaderIcon} from './icons';
-import {toast} from './toast';
+import {LoaderIcon} from '../common/icons';
+import {toast} from '../toast';
 
 export function SidebarUserNav({user}: { user: User }) {
     const {status} = useSession();

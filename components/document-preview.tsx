@@ -9,7 +9,7 @@ import {
     useRef,
 } from 'react';
 import type {ArtifactKind, UIArtifact} from './artifact';
-import {FileIcon, FullscreenIcon, LoaderIcon} from './icons';
+import {FileIcon, FullscreenIcon, LoaderIcon} from './common/icons';
 import {cn, fetcher} from '@/lib/utils';
 import type {Document} from '@/lib/db/schema';
 import {InlineDocumentSkeleton} from './document-skeleton';

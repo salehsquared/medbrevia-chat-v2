@@ -6,7 +6,7 @@ import {motion, AnimatePresence} from 'framer-motion';
 import type {Session} from 'next-auth';
 
 import {ModelSelector} from './model-selector';
-import {SidebarToggle} from './sidebar-toggle';
+import {SidebarToggle} from './sidebar/sidebar-toggle';
 import {Button} from '@/components/ui/button';
 import {Tooltip, TooltipContent, TooltipTrigger} from './ui/tooltip';
 import {type VisibilityType, VisibilitySelector} from './visibility-selector';
