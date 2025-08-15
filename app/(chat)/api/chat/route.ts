@@ -100,7 +100,6 @@ export async function POST(request: Request) {
         }
 
         // TODO: keep rate-limit logic gated behind an env flag in the future.
-
         const chat = await getChatById({id});
 
         if (!chat) {

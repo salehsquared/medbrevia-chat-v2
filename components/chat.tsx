@@ -93,14 +93,17 @@ function useSmoothedMessages(messages: ChatMessage[], status: string) {
         return -1;
     }, [messages]);
 
-    const lastAssistant = lastAssistantIndex >= 0 ? messages[lastAssistantIndex] : null;
+    const lastAssistant =
+        lastAssistantIndex >= 0 ? messages[lastAssistantIndex] : null;
 
     // If not streaming or no assistant message, pass through.
     const shouldSmooth = status === 'streaming' && !!lastAssistant;
 
     // Extract raw text for smoothing.
     const {index: lastTextIndex, text: rawText} = useMemo(() => {
-        return lastAssistant ? getLastTextPart(lastAssistant) : {index: -1, text: ''};
+        return lastAssistant
+            ? getLastTextPart(lastAssistant)
+            : {index: -1, text: ''};
     }, [lastAssistant]);
 
     // Coalesce tiny tails to avoid micro-jitter, then throttle paints.
@@ -109,10 +112,13 @@ function useSmoothedMessages(messages: ChatMessage[], status: string) {
 
     // Build a cloned messages array with only the visible text changed.
     const smoothed = useMemo(() => {
-        if (!shouldSmooth || lastAssistantIndex < 0 || lastTextIndex < 0) return messages;
+        if (!shouldSmooth || lastAssistantIndex < 0 || lastTextIndex < 0)
+            return messages;
 
         const cloned = messages.slice();
-        const m = {...cloned[lastAssistantIndex]} as ChatMessage & { parts: any[] };
+        const m = {...cloned[lastAssistantIndex]} as ChatMessage & {
+            parts: any[];
+        };
         const parts = m.parts.slice();
         const p = {...parts[lastTextIndex], text: throttled};
         parts[lastTextIndex] = p;
@@ -151,8 +157,9 @@ export function Chat({
     });
 
     const validModelIds = new Set(chatModels.map((m) => m.id));
-    const safeModelId =
-        validModelIds.has(initialChatModel) ? initialChatModel : DEFAULT_CHAT_MODEL;
+    const safeModelId = validModelIds.has(initialChatModel)
+        ? initialChatModel
+        : DEFAULT_CHAT_MODEL;
 
     const {mutate} = useSWRConfig();
     const {setDataStream} = useDataStream();
@@ -197,12 +204,16 @@ export function Chat({
             mutate(unstable_serialize(getChatHistoryPaginationKey));
         },
         onError: (error) => {
-            if (error instanceof ChatSDKError) {
-                toast({
-                    type: 'error',
-                    description: error.message,
-                });
-            }
+            // 1) Show a helpful toast
+            const description =
+                error instanceof ChatSDKError
+                    ? error.message
+                    : 'Something went wrong. Please try again.';
+            toast({type: 'error', description});
+
+            // 2) Guarantee the hook leaves "busy" mode
+            //    (covers rare paths where a 4xx leaves status stuck at "submitted")
+            stop();
         },
     });
 
