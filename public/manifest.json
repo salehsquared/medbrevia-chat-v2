@@ -1,0 +1,41 @@
+{
+  "name": "MedBrevia",
+  "short_name": "MedBrevia",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fff",
+  "description": "A medical assistant tool designed to help with reading research articles, analyzing case studies, and differential diagnoses.",
+  "icons": [
+    {
+      "src": "/icons/bg-logo-16x16.png",
+      "type": "image/png",
+      "sizes": "16x16"
+    },
+    {
+      "src": "/icons/bg-logo-32x32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "/icons/bg-logo-64x64.png",
+      "type": "image/png",
+      "sizes": "64x64"
+    },
+    {
+      "src": "/icons/bg-logo-128x128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    },
+    {
+      "src": "/icons/bg-logo-256x256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#FFFFFF",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#000000",
+  "orientation": "portrait"
+}

@@ -1,3 +1,4 @@
+// components/sidebar/sidebar-user-nav.tsx
 'use client';
 
 import {ChevronUp} from 'lucide-react';
@@ -36,7 +37,7 @@ export function SidebarUserNav({user}: { user: User }) {
                                 <div className="flex flex-row gap-2">
                                     <div className="size-6 bg-zinc-500/30 rounded-full animate-pulse"/>
                                     <span className="bg-zinc-500/30 text-transparent rounded-md animate-pulse">
-                    Loading auth status
+                    Loading MedBrevia account…
                   </span>
                                 </div>
                                 <div className="animate-spin text-zinc-500">
@@ -50,13 +51,13 @@ export function SidebarUserNav({user}: { user: User }) {
                             >
                                 <Image
                                     src={`https://avatar.vercel.sh/${user?.email ?? 'user'}`}
-                                    alt={user?.email ?? 'User Avatar'}
+                                    alt={user?.email ?? 'MedBrevia user'}
                                     width={24}
                                     height={24}
                                     className="rounded-full"
                                 />
                                 <span data-testid="user-email" className="truncate">
-                  {user?.email ?? 'Account'}
+                  {user?.email ?? 'MedBrevia Account'}
                 </span>
                                 <ChevronUp className="ml-auto"/>
                             </SidebarMenuButton>
@@ -86,13 +87,12 @@ export function SidebarUserNav({user}: { user: User }) {
                                     if (status === 'loading') {
                                         toast({
                                             type: 'error',
-                                            description: 'Checking authentication status, please try again!',
+                                            description:
+                                                'Checking authentication status, please try again!',
                                         });
                                         return;
                                     }
-                                    // Important: redirect back to the *main site* after signing out
-                                    // NextAuth will clear the __Secure-authjs.session-token cookie
-                                    // (Domain=.medbrevia.com in prod) so both apps become signed out.
+                                    // Redirect back to the main site after signing out
                                     signOut({
                                         callbackUrl: 'https://medbrevia.com',
                                     });
