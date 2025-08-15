@@ -1,7 +1,7 @@
 'use client';
 import cx from 'classnames';
 import {AnimatePresence, motion} from 'framer-motion';
-import {memo, useState} from 'react';
+import {memo, useCallback, useMemo, useRef, useState} from 'react';
 import type {Vote} from '@/lib/db/schema';
 import {DocumentToolCall, DocumentToolResult} from './document';
 import {PencilEditIcon, SparklesIcon} from './common/icons';
@@ -18,6 +18,154 @@ import {MessageReasoning} from './message-reasoning';
 import type {UseChatHelpers} from '@ai-sdk/react';
 import type {ChatMessage} from '@/lib/types';
 import {useDataStream} from './data-stream-provider';
+
+// new imports for copy UX
+import {useCopyToClipboard} from 'usehooks-ts';
+import {ClipboardCopy, Check} from 'lucide-react';
+import {toast} from 'sonner';
+
+/* -------------------------------------------------------------------------- */
+/* Utilities                                                                  */
+
+/* -------------------------------------------------------------------------- */
+
+function getTextFromMessage(message: ChatMessage) {
+    return (
+        message.parts
+            ?.filter((p) => p.type === 'text')
+            .map((p) => p.text)
+            .join('\n')
+            .trim() ?? ''
+    );
+}
+
+// ephemeral flag for brief success swap animation
+function useTransientFlag(durationMs = 1400) {
+    const [flag, setFlag] = useState(false);
+    const timer = useRef<number | null>(null);
+
+    const trigger = useCallback(() => {
+        setFlag(true);
+        if (timer.current) window.clearTimeout(timer.current);
+        timer.current = window.setTimeout(() => setFlag(false), durationMs);
+    }, [durationMs]);
+
+    // cleanup on unmount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    useMemo(() => () => timer.current && window.clearTimeout(timer.current), []);
+
+    return [flag, trigger] as const;
+}
+
+/* -------------------------------------------------------------------------- */
+/* Copy Button for USER messages                                              */
+/* - Selection-aware: copies selection if any                                 */
+/* - Shift+Click: copies as Markdown quote (prefixed with `> `)               */
+/* - Subtle, professional micro-animations                                    */
+
+/* -------------------------------------------------------------------------- */
+
+function UserCopyButton({
+                            message,
+                            className,
+                        }: {
+    message: ChatMessage;
+    className?: string;
+}) {
+    const [, copyToClipboard] = useCopyToClipboard();
+    const [copied, triggerCopied] = useTransientFlag(1200);
+
+    const copySelectedOrWhole = useCallback(
+        async (opts?: { asQuote?: boolean }) => {
+            // 1) Try selection first (nice for copying snippets)
+            const selected =
+                typeof window !== 'undefined'
+                    ? (window.getSelection?.()?.toString() ?? '').trim()
+                    : '';
+
+            // 2) Otherwise, copy the whole user message (text parts only)
+            let text = selected || getTextFromMessage(message);
+
+            if (!text) {
+                toast.error("There's no text to copy!");
+                return;
+            }
+
+            if (opts?.asQuote) {
+                text = text
+                    .split('\n')
+                    .map((line) => (line.length ? `> ${line}` : '>'))
+                    .join('\n');
+            }
+
+            try {
+                await copyToClipboard(text);
+                triggerCopied();
+                toast.success('Copied to clipboard!');
+            } catch {
+                // Very rare: in case the hook fails for any reason
+                try {
+                    await navigator.clipboard.writeText(text);
+                    triggerCopied();
+                    toast.success('Copied to clipboard!');
+                } catch {
+                    toast.error('Copy failed. Please try again.');
+                }
+            }
+        },
+        [copyToClipboard, message, triggerCopied],
+    );
+
+    return (
+        <Tooltip>
+            <TooltipTrigger asChild>
+                <Button
+                    variant="ghost"
+                    className={cx(
+                        'px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100 transition-opacity',
+                        className,
+                    )}
+                    onClick={(e) => {
+                        const asQuote = e.shiftKey; // Shift+Click => copy as Markdown quote
+                        void copySelectedOrWhole({asQuote});
+                    }}
+                    aria-label="Copy message (⇧ for quote)"
+                >
+                    <AnimatePresence initial={false} mode="wait">
+                        {copied ? (
+                            <motion.span
+                                key="copied"
+                                initial={{opacity: 0, y: 2, scale: 0.98}}
+                                animate={{opacity: 1, y: 0, scale: 1}}
+                                exit={{opacity: 0, y: -2, scale: 0.98}}
+                                transition={{type: 'spring', stiffness: 500, damping: 28}}
+                                className="inline-flex"
+                            >
+                                <Check className="h-4 w-4"/>
+                            </motion.span>
+                        ) : (
+                            <motion.span
+                                key="copy"
+                                initial={{opacity: 0, y: 2, scale: 0.98}}
+                                animate={{opacity: 1, y: 0, scale: 1}}
+                                exit={{opacity: 0, y: -2, scale: 0.98}}
+                                transition={{type: 'spring', stiffness: 500, damping: 28}}
+                                className="inline-flex"
+                            >
+                                <ClipboardCopy className="h-4 w-4"/>
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
+                </Button>
+            </TooltipTrigger>
+            <TooltipContent>Copy (⇧ for Quote)</TooltipContent>
+        </Tooltip>
+    );
+}
+
+/* -------------------------------------------------------------------------- */
+/* Message                                                                    */
+/* -------------------------------------------------------------------------- */
 
 // Type narrowing is handled by TypeScript's control flow analysis
 // The AI SDK provides proper discriminated unions for tool calls
@@ -117,24 +265,30 @@ const PurePreviewMessage = ({
                                 if (mode === 'view') {
                                     return (
                                         <div key={key} className="flex flex-row gap-2 items-start">
+                                            {/* ACTIONS next to USER message: Copy + Edit (on hover) */}
                                             {message.role === 'user' && !isReadonly && (
-                                                <Tooltip>
-                                                    <TooltipTrigger asChild>
-                                                        <Button
-                                                            data-testid="message-edit-button"
-                                                            variant="ghost"
-                                                            className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100"
-                                                            onClick={() => {
-                                                                setMode('edit');
-                                                            }}
-                                                        >
-                                                            <PencilEditIcon/>
-                                                        </Button>
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>Edit message</TooltipContent>
-                                                </Tooltip>
+                                                <>
+                                                    <UserCopyButton message={message}/>
+                                                    <Tooltip>
+                                                        <TooltipTrigger asChild>
+                                                            <Button
+                                                                data-testid="message-edit-button"
+                                                                variant="ghost"
+                                                                className="px-2 h-fit rounded-full text-muted-foreground opacity-0 group-hover/message:opacity-100 transition-opacity"
+                                                                onClick={() => {
+                                                                    setMode('edit');
+                                                                }}
+                                                                aria-label="Edit message"
+                                                            >
+                                                                <PencilEditIcon/>
+                                                            </Button>
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>Edit message</TooltipContent>
+                                                    </Tooltip>
+                                                </>
                                             )}
 
+                                            {/* Content bubble */}
                                             <div
                                                 data-testid="message-content"
                                                 className={cn('flex flex-col gap-4', {
@@ -152,7 +306,6 @@ const PurePreviewMessage = ({
                                     return (
                                         <div key={key} className="flex flex-row gap-2 items-start">
                                             <div className="size-8"/>
-
                                             <MessageEditor
                                                 key={message.id}
                                                 message={message}
@@ -193,9 +346,10 @@ const PurePreviewMessage = ({
 
                                     return (
                                         <div key={toolCallId}>
-                                            <DocumentPreview
-                                                isReadonly={isReadonly}
+                                            <DocumentToolResult
+                                                type="create"
                                                 result={output}
+                                                isReadonly={isReadonly}
                                             />
                                         </div>
                                     );
@@ -288,7 +442,8 @@ const PurePreviewMessage = ({
                             }
                         })}
 
-                        {!isReadonly && (
+                        {/* Assistant action bar (votes, copy) — keep as-is */}
+                        {!isReadonly && message.role === 'assistant' && (
                             <MessageActions
                                 key={`action-${message.id}`}
                                 chatId={chatId}
@@ -297,6 +452,13 @@ const PurePreviewMessage = ({
                                 isLoading={isLoading}
                             />
                         )}
+
+                        {/* Live region for a11y announcements (copy/edit) */}
+                        <output aria-live="polite" className="sr-only">
+                            {message.role === 'user'
+                                ? 'User message actions available: copy and edit.'
+                                : 'Assistant message actions available.'}
+                        </output>
                     </div>
                 </div>
             </motion.div>
