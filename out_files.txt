@@ -25,36 +25,17 @@ medbrevia-chat-v2/
     next.config.ts
     artifacts/
         actions.ts
-        code/
-            client.tsx
-            server.ts
-        image/
-            client.tsx
-            server.ts
         text/
-            client.tsx
-            server.ts
-        sheet/
             client.tsx
             server.ts
     app/
         favicon.ico
         layout.tsx
         globals.css
-        (auth)/
-            auth.config.ts
-            actions.ts
-            auth.ts
-            register/
-                page.tsx
-            api/
-                auth/
-                    [...nextauth]/
-                        route.ts
-                    guest/
-                        route.ts
-            login/
-                page.tsx
+        api/
+            auth/
+                [...nextauth]/
+                    route.ts
         (chat)/
             opengraph-image.png (Image, 2400x1256)
             twitter-image.png (Image, 2400x1256)
@@ -109,34 +90,28 @@ medbrevia-chat-v2/
         artifact-messages.tsx
         message-reasoning.tsx
         sidebar-user-nav.tsx
-        markdown.tsx
-        code-editor.tsx
         model-selector.tsx
         diffview.tsx
         version-footer.tsx
         toolbar.tsx
         data-stream-handler.tsx
         preview-attachment.tsx
-        weather.tsx
         suggestion.tsx
         data-stream-provider.tsx
         artifact-actions.tsx
         message-editor.tsx
         create-artifact.tsx
-        sheet-editor.tsx
         app-sidebar.tsx
         sidebar-toggle.tsx
         auth-form.tsx
         sign-out-form.tsx
         text-editor.tsx
         sidebar-history-item.tsx
-        console.tsx
         artifact.tsx
         icons.tsx
         chat-header.tsx
         message-actions.tsx
         visibility-selector.tsx
-        code-block.tsx
         multimodal-input.tsx
         message.tsx
         messages.tsx
@@ -146,7 +121,6 @@ medbrevia-chat-v2/
         submit-button.tsx
         toast.tsx
         suggested-actions.tsx
-        image-editor.tsx
         greeting.tsx
         ui/
             alert-dialog.tsx
@@ -162,6 +136,10 @@ medbrevia-chat-v2/
             textarea.tsx
             input.tsx
             skeleton.tsx
+        markdown/
+            markdown.tsx
+            enhanced-table.tsx
+            remark-autolink-clinical.ts
     public/
         images/
             demo-thumbnail.png (Image, 768x480)
@@ -184,6 +162,8 @@ medbrevia-chat-v2/
         constants.ts
         artifacts/
             server.ts
+        auth/
+            auth.ts
         ai/
             models.test.ts
             providers.ts
@@ -191,7 +171,6 @@ medbrevia-chat-v2/
             prompts.ts
             models.ts
             tools/
-                get-weather.ts
                 update-document.ts
                 request-suggestions.ts
                 create-document.ts
