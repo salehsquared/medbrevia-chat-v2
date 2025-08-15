@@ -1,0 +1,44 @@
+# Generate a random secret: https://generate-secret.vercel.app/32 or `openssl rand -base64 32`
+AUTH_SECRET=REDACTED
+
+AUTH_URL=REDACTED
+AUTH_TRUST_HOST=REDACTED
+
+# The following keys below are automatically created and
+# added to your environment when you deploy on vercel
+
+# Get your xAI API Key here for chat and image models: https://console.x.ai/
+XAI_API_KEY=REDACTED
+
+OPENAI_API_KEY=REDACTED
+
+# Instructions to create a Vercel Blob Store here: https://vercel.com/docs/storage/vercel-blob
+BLOB_READ_WRITE_TOKEN=REDACTED
+
+# Instructions to create a PostgreSQL database here: https://vercel.com/docs/storage/vercel-postgres/quickstart
+POSTGRES_URL=REDACTED
+
+
+# Instructions to create a Redis store here:
+# https://vercel.com/docs/redis
+REDIS_URL=REDACTED
+
+
+PINECONE_INDEX_NAME=REDACTED
+PINECONE_NAMESPACE=REDACTED
+PINECONE_ENVIRONMENT=REDACTED
+PINECONE_API_KEY=REDACTED
+EMBEDDING_MODEL=REDACTED
+
+AI_GATEWAY_API_KEY=REDACTED
+
+FIREBASE_ADMIN_SDK_B64=REDACTED
+
+NEXT_PUBLIC_FIREBASE_API_KEY=REDACTED
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=REDACTED
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=REDACTED
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=REDACTED
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=REDACTED
+NEXT_PUBLIC_FIREBASE_APP_ID=REDACTED
+# NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=REDACTED
+FIREBASE_DATABASE_URL=REDACTED
